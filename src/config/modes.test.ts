@@ -1,19 +1,21 @@
 import { Value } from "@sinclair/typebox/value";
 import { describe, expect, it } from "vitest";
-import {
-  INDEPENDENT_MODES,
-  isValidMode,
-  ModeSchema,
-  modeLabel,
-  VALID_MODES,
-} from "./modes.js";
+import { INDEPENDENT_MODES, isValidMode, ModeSchema, modeLabel, VALID_MODES } from "./modes.js";
 
 describe("modes", () => {
   it("VALID_MODES contains all 11 modes", () => {
     expect(VALID_MODES).toEqual([
-      "off", "lite", "full", "ultra",
-      "wenyan-lite", "wenyan", "wenyan-full", "wenyan-ultra",
-      "commit", "review", "compress",
+      "off",
+      "lite",
+      "full",
+      "ultra",
+      "wenyan-lite",
+      "wenyan",
+      "wenyan-full",
+      "wenyan-ultra",
+      "commit",
+      "review",
+      "compress",
     ]);
   });
 

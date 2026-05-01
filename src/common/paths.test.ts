@@ -5,8 +5,13 @@ import { agentsDir, claudeFlagPath, packageRoot, skillsDir, vendorRoot } from ".
 describe("paths", () => {
   const originalEnv = { ...process.env };
 
-  beforeEach(() => { Object.assign(process.env, originalEnv); });
-  afterEach(() => { for (const k of Object.keys(process.env)) delete process.env[k]; Object.assign(process.env, originalEnv); });
+  beforeEach(() => {
+    Object.assign(process.env, originalEnv);
+  });
+  afterEach(() => {
+    for (const k of Object.keys(process.env)) delete process.env[k];
+    Object.assign(process.env, originalEnv);
+  });
 
   it("packageRoot resolves to repo root containing package.json", () => {
     const root = packageRoot();

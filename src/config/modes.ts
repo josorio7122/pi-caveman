@@ -1,9 +1,17 @@
-import { Type, type Static } from "@sinclair/typebox";
+import { type Static, Type } from "@sinclair/typebox";
 
 export const VALID_MODES = [
-  "off", "lite", "full", "ultra",
-  "wenyan-lite", "wenyan", "wenyan-full", "wenyan-ultra",
-  "commit", "review", "compress",
+  "off",
+  "lite",
+  "full",
+  "ultra",
+  "wenyan-lite",
+  "wenyan",
+  "wenyan-full",
+  "wenyan-ultra",
+  "commit",
+  "review",
+  "compress",
 ] as const;
 
 export type Mode = (typeof VALID_MODES)[number];
