@@ -5,5 +5,6 @@ export default defineConfig({
     include: ["src/**/*.test.ts", "scripts/**/*.test.ts"],
     exclude: ["**/*-e2e.test.ts", "node_modules", "vendor"],
     globals: true,
+    passWithNoTests: true,
   },
 });

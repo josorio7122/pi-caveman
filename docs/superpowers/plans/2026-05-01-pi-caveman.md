@@ -173,31 +173,81 @@
 
 ```json
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.13/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.14/schema.json",
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
-  "files": { "ignoreUnknown": false, "includes": ["src/**", "scripts/**", "tests/**"] },
-  "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 120 },
+  "files": {
+    "ignoreUnknown": false,
+    "includes": ["src/**", "scripts/**", "tests/**"]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 120
+  },
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": true,
       "style": {
+        "recommended": false,
         "noNestedTernary": "error",
-        "useMaxParams": { "level": "error", "options": { "max": 2 } }
+        "noNonNullAssertion": "error",
+        "useImportType": "error",
+        "useFilenamingConvention": {
+          "level": "error",
+          "options": { "filenameCases": ["kebab-case"] }
+        }
       },
-      "suspicious": {
-        "noExplicitAny": "error"
+      "performance": {
+        "noBarrelFile": "error",
+        "noNamespaceImport": "error"
       },
       "complexity": {
-        "noBarrelFile": "error"
+        "useMaxParams": {
+          "level": "error",
+          "options": { "max": 2 }
+        },
+        "noExcessiveCognitiveComplexity": {
+          "level": "error",
+          "options": { "maxAllowedComplexity": 25 }
+        }
+      },
+      "correctness": {
+        "noUnusedImports": "error",
+        "noUnusedVariables": "error"
+      },
+      "suspicious": {
+        "noExplicitAny": "error",
+        "noControlCharactersInRegex": "off",
+        "noEmptyInterface": "off"
       }
     }
   },
   "overrides": [
-    { "includes": ["src/api.ts"], "linter": { "rules": { "complexity": { "noBarrelFile": "off" } } } }
+    {
+      "includes": ["src/api.ts"],
+      "linter": {
+        "rules": {
+          "performance": { "noBarrelFile": "off" }
+        }
+      }
+    },
+    {
+      "includes": ["**/*.test.ts"],
+      "linter": {
+        "rules": {
+          "style": { "noNonNullAssertion": "off" },
+          "suspicious": { "noExplicitAny": "error" },
+          "correctness": { "noUnusedVariables": "off" }
+        }
+      }
+    }
   ]
 }
 ```
+
+Rule categories: `performance` for `noBarrelFile`/`noNamespaceImport`; `complexity` for `useMaxParams`/`noExcessiveCognitiveComplexity`; `style` for `noNestedTernary`/`noNonNullAssertion`/`useImportType`/`useFilenamingConvention`. The biome 2.4.x schema rejects misplaced keys.
 
 - [ ] **Step 4: Write `vitest.config.ts`**
 
@@ -209,6 +259,7 @@ export default defineConfig({
     include: ["src/**/*.test.ts", "scripts/**/*.test.ts"],
     exclude: ["**/*-e2e.test.ts", "node_modules", "vendor"],
     globals: true,
+    passWithNoTests: true,
   },
 });
 ```
