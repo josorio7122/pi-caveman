@@ -1,4 +1,4 @@
-import { lstatSync, readFileSync, statSync, symlinkSync, unlinkSync } from "node:fs";
+import { lstatSync, readFileSync, statSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -53,5 +53,26 @@ describe("flag.ts", () => {
     expect(lstatSync(flag).isSymbolicLink()).toBe(true);
     expect(() => readFileSync(target, "utf8")).toThrow();
     unlinkSync(flag);
+  });
+
+  it("readFlag returns null when flag is a symlink", () => {
+    const flag = join(tmp, ".caveman-active");
+    const target = join(tmp, "victim");
+    writeFileSync(target, "ultra");
+    symlinkSync(target, flag);
+    expect(readFlag(flag)).toBeNull();
+    unlinkSync(flag);
+  });
+
+  it("readFlag returns null when content exceeds 64 bytes", () => {
+    const flag = join(tmp, ".caveman-active");
+    writeFileSync(flag, "x".repeat(65));
+    expect(readFlag(flag)).toBeNull();
+  });
+
+  it("readFlag returns null for invalid mode content", () => {
+    const flag = join(tmp, ".caveman-active");
+    writeFileSync(flag, "garbage-content");
+    expect(readFlag(flag)).toBeNull();
   });
 });

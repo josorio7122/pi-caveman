@@ -912,6 +912,8 @@ git commit -m "feat: resolve default mode from env > config > full"
 
 ## Task 8: `config/flag.ts` — symlink-safe atomic flag write
 
+Includes upstream's full symlink-safe defense on both read and write paths (lstatSync refusal, O_NOFOLLOW, O_EXCL on write, MAX_FLAG_BYTES=64 cap, VALID_MODES whitelist on read).
+
 **Files:**
 - Create: `src/config/flag.ts`
 - Test: `src/config/flag.test.ts`
@@ -919,8 +921,8 @@ git commit -m "feat: resolve default mode from env > config > full"
 - [ ] **Step 1: Write the failing test**
 
 ```ts
-import { lstatSync, readFileSync, statSync, symlinkSync, unlinkSync } from "node:fs";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { lstatSync, readFileSync, statSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
+import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -971,6 +973,27 @@ describe("flag.ts", () => {
     expect(() => readFileSync(target, "utf8")).toThrow();
     unlinkSync(flag);
   });
+
+  it("readFlag returns null when flag is a symlink", () => {
+    const flag = join(tmp, ".caveman-active");
+    const target = join(tmp, "victim");
+    writeFileSync(target, "ultra");
+    symlinkSync(target, flag);
+    expect(readFlag(flag)).toBeNull();
+    unlinkSync(flag);
+  });
+
+  it("readFlag returns null when content exceeds 64 bytes", () => {
+    const flag = join(tmp, ".caveman-active");
+    writeFileSync(flag, "x".repeat(65));
+    expect(readFlag(flag)).toBeNull();
+  });
+
+  it("readFlag returns null for invalid mode content", () => {
+    const flag = join(tmp, ".caveman-active");
+    writeFileSync(flag, "garbage-content");
+    expect(readFlag(flag)).toBeNull();
+  });
 });
 ```
 
@@ -985,10 +1008,11 @@ Expected: FAIL — module not found.
 import {
   closeSync,
   constants,
+  fchmodSync,
   lstatSync,
   mkdirSync,
   openSync,
-  readFileSync,
+  readSync,
   realpathSync,
   renameSync,
   statSync,
@@ -997,6 +1021,9 @@ import {
 } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, resolve, sep } from "node:path";
+import { isValidMode } from "./modes.js";
+
+const MAX_FLAG_BYTES = 64;
 
 const debug = (msg: string): void => {
   if (process.env.CAVEMAN_DEBUG === "1") process.stderr.write(`[caveman] ${msg}\n`);
@@ -1044,7 +1071,6 @@ export function safeWriteFlag(flagPath: string, content: string): void {
     mkdirSync(flagDir, { recursive: true });
     if (!verifyDir(flagDir)) return;
 
-    // If the flag itself is a symlink, refuse — that's the clobber vector.
     try {
       const lstat = lstatSync(flagPath);
       if (lstat.isSymbolicLink()) {
@@ -1055,8 +1081,8 @@ export function safeWriteFlag(flagPath: string, content: string): void {
       // missing — fine, will create
     }
 
-    const tmpPath = `${flagPath}.tmp.${process.pid}`;
-    const flags = constants.O_CREAT | constants.O_WRONLY | constants.O_TRUNC | (constants.O_NOFOLLOW ?? 0);
+    const tmpPath = `${flagPath}.tmp.${process.pid}.${Date.now()}`;
+    const flags = constants.O_CREAT | constants.O_WRONLY | constants.O_EXCL | (constants.O_NOFOLLOW ?? 0);
     let fd: number;
     try {
       fd = openSync(tmpPath, flags, 0o600);
@@ -1065,6 +1091,7 @@ export function safeWriteFlag(flagPath: string, content: string): void {
       return;
     }
     try {
+      fchmodSync(fd, 0o600);
       writeSync(fd, content);
     } finally {
       closeSync(fd);
@@ -1082,7 +1109,33 @@ export function safeWriteFlag(flagPath: string, content: string): void {
 
 export function readFlag(flagPath: string): string | null {
   try {
-    return readFileSync(flagPath, "utf8").trim();
+    // Refuse to follow a symlink at the flag path itself.
+    const lstat = lstatSync(flagPath);
+    if (lstat.isSymbolicLink()) {
+      debug(`readFlag: ${flagPath} is a symlink — refusing`);
+      return null;
+    }
+    if (!lstat.isFile()) return null;
+
+    // Bounded read — no arbitrary-size pulls.
+    const flags = constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0);
+    const fd = openSync(flagPath, flags);
+    try {
+      const buf = Buffer.alloc(MAX_FLAG_BYTES + 1);
+      const bytes = readSync(fd, buf, 0, MAX_FLAG_BYTES + 1, 0);
+      if (bytes > MAX_FLAG_BYTES) {
+        debug(`readFlag: content > ${MAX_FLAG_BYTES} bytes — refusing`);
+        return null;
+      }
+      const content = buf.subarray(0, bytes).toString("utf8").trim();
+      if (!isValidMode(content)) {
+        debug(`readFlag: '${content}' not a valid mode — refusing`);
+        return null;
+      }
+      return content;
+    } finally {
+      closeSync(fd);
+    }
   } catch {
     return null;
   }
@@ -1092,7 +1145,7 @@ export function readFlag(flagPath: string): string | null {
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run src/config/flag.test.ts`
-Expected: PASS, 6 tests.
+Expected: PASS, 9 tests.
 
 - [ ] **Step 5: Commit**
 
