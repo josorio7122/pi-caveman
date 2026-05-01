@@ -52,11 +52,7 @@ The rule targets *literal* string assembly, not variable concatenation.
 ## TypeScript
 
 - **No classes.** Factory functions + closures for stateful behavior. Exception: pi-tui's own components (`Container`, `Text`, `BorderedBox`) are instantiated via `new` at the rendering boundary; we don't extend them.
-- **Typebox for schemas** (not zod). Pi bundles typebox as a core peer package. Use `Type.Object({...})`, `Type.String()`, etc. from `@sinclair/typebox`. String enums have two forms:
-  - **Locally validated** (e.g. against `Value.Check`): `Type.Union([Type.Literal("a"), Type.Literal("b")])`. `StringEnum` from `@mariozechner/pi-ai` crashes `Value.Check` because it wraps `Type.Unsafe` and lacks the `[Kind]` symbol.
-  - **Tool parameter schemas sent to LLMs** (via `defineTool`): `StringEnum([...] as const)` from `@mariozechner/pi-ai` — Google's API rejects `anyOf`/`const`, so `Type.Union` of `Type.Literal` doesn't work there.
-
-  Runtime validation goes through the `safeParse` helper at `src/schema/parse.ts`.
+- **Typebox for schemas** (not zod). Pi bundles typebox as a core peer package. Use `Type.Object({...})`, `Type.String()`, etc. from `@sinclair/typebox`. For string enums use `Type.Union([Type.Literal("a"), Type.Literal("b")])` so `Value.Check` works correctly. Runtime validation goes at IO boundaries via a local `safeParse` helper.
 - **No `any`**, **no non-null assertions (`!`)**, **no barrel files except `src/api.ts`**. Enforced by biome.
 - **No nested ternaries.** Enforced by biome (`noNestedTernary: "error"`). Use early returns or a helper function.
 - **Max 2 params per function.** Use an options object for anything longer. Enforced by biome (`useMaxParams`).
