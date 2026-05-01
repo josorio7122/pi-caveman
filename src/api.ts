@@ -1,0 +1,12 @@
+export { detectModeChange } from "./bootstrap/activations.js";
+export { buildRuleset } from "./bootstrap/ruleset.js";
+export { handleCaveman } from "./commands/caveman.js";
+export { runStats } from "./commands/stats.js";
+export { getDefaultMode } from "./config/default-mode.js";
+export { readFlag, safeWriteFlag } from "./config/flag.js";
+export type { Mode, ModeLabel } from "./config/modes.js";
+export { INDEPENDENT_MODES, isValidMode, ModeSchema, modeLabel, VALID_MODES } from "./config/modes.js";
+export type { Usage } from "./stats/extract-usage.js";
+export type { Totals } from "./stats/parse.js";
+export { parseSessionTotals } from "./stats/parse.js";
+export { renderStatsCard } from "./stats/render.js";
