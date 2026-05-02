@@ -2,11 +2,11 @@ import { describe, expect, it, vi } from "vitest";
 import { registerCommands } from "./register.js";
 
 describe("registerCommands", () => {
-  it("registers all 5 caveman slash commands", () => {
+  it("registers the 3 wrapped caveman slash commands", () => {
     const registerCommand = vi.fn();
     registerCommands({ registerCommand } as never);
     const names = registerCommand.mock.calls.map((c) => c[0] as string).sort();
-    expect(names).toEqual(["caveman", "caveman-commit", "caveman-init", "caveman-review", "caveman-stats"]);
+    expect(names).toEqual(["caveman", "caveman-init", "caveman-stats"]);
   });
 
   it("each registration includes a description and handler", () => {

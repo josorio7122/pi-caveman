@@ -1,7 +1,16 @@
 import { readdir } from "node:fs/promises";
 import { agentsDir, commandsDir, skillsDir } from "../src/common/paths.js";
 
-const REGISTERED_COMMANDS = new Set(["caveman", "caveman-commit", "caveman-review", "caveman-init"]);
+// Commands wrapped via pi.registerCommand in src/commands/register.ts.
+// These need a TS handler because they either mutate state, spawn a process,
+// or deliberately bypass the model.
+const WRAPPED_COMMANDS = new Set(["caveman", "caveman-init"]);
+
+// Commands intentionally NOT wrapped: the slash command flows to the model,
+// which invokes the matching auto-discovered skill (vendor/caveman/skills/<name>)
+// via the `pi.skills` manifest. Same pattern as /caveman-help.
+const SKILL_HANDLED_COMMANDS = new Set(["caveman-commit", "caveman-review", "caveman-help"]);
+
 const REGISTERED_AGENTS = new Set(["cavecrew-builder", "cavecrew-investigator", "cavecrew-reviewer"]);
 const KNOWN_SKILLS = new Set([
   "caveman",
@@ -22,7 +31,7 @@ export async function runParityCheck(): Promise<ParityResult> {
   const tomls = (await readdir(commandsDir())).filter((f) => f.endsWith(".toml"));
   const tomlNames = tomls.map((f) => f.replace(/\.toml$/, ""));
   for (const t of tomlNames) {
-    if (!REGISTERED_COMMANDS.has(t)) {
+    if (!WRAPPED_COMMANDS.has(t) && !SKILL_HANDLED_COMMANDS.has(t)) {
       errors.push(`unregistered upstream command: ${t}.toml`);
     }
   }
