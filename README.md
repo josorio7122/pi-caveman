@@ -61,11 +61,6 @@ git commit -m "chore: sync caveman to <tag>"
 git tag <tag> && git push --follow-tags
 ```
 
-## Spec & plan
-
-- Design: [`docs/superpowers/specs/2026-05-01-pi-caveman-design.md`](docs/superpowers/specs/2026-05-01-pi-caveman-design.md)
-- Implementation plan: [`docs/superpowers/plans/2026-05-01-pi-caveman.md`](docs/superpowers/plans/2026-05-01-pi-caveman.md)
-
 ## License
 
 MIT. Upstream caveman content under `vendor/caveman/` retains its [MIT license](vendor/caveman/LICENSE).
