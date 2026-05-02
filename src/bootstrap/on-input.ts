@@ -1,5 +1,3 @@
-import { renderHelpCard } from "../commands/help-card.js";
-
 type Event = { text: string; source: "interactive" | "rpc" | "extension" };
 type Ctx = { ui: { notify: (text: string, level: string) => void } };
 type Result = { action: "continue" } | { action: "handled" };
@@ -9,7 +7,6 @@ export type StatsArgs = Readonly<{ share: boolean; all: boolean; since?: string 
 export type RunStatsFn = (ctx: Ctx, args: StatsArgs) => Promise<string>;
 
 const STATS_RE = /^\/caveman(?::caveman)?-stats(?:\s+(.*))?$/;
-const HELP_RE = /^\/caveman(?::caveman)?-help$/;
 
 export function parseStatsArgs(rest: string | undefined): StatsArgs {
   const parts = (rest ?? "").trim().split(/\s+/).filter(Boolean);
@@ -24,12 +21,6 @@ export function buildOnInput(deps: { runStats: RunStatsFn }): Handler {
   return async (event, ctx) => {
     if (event.source === "extension") return { action: "continue" };
     const text = event.text.trim();
-    if (HELP_RE.test(text)) {
-      const card = renderHelpCard();
-      ctx.ui.notify(card, "info");
-      process.stdout.write(`${card}\n`);
-      return { action: "handled" };
-    }
     const m = STATS_RE.exec(text);
     if (!m) return { action: "continue" };
     const args = parseStatsArgs(m[1]);
