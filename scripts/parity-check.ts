@@ -2,14 +2,14 @@ import { readdir } from "node:fs/promises";
 import { agentsDir, commandsDir, skillsDir } from "../src/common/paths.js";
 
 // Commands wrapped via pi.registerCommand in src/commands/register.ts.
-// These need a TS handler because they either mutate state, spawn a process,
-// or deliberately bypass the model.
-const WRAPPED_COMMANDS = new Set(["caveman", "caveman-init"]);
+// commit/review forward the upstream toml `prompt` via pi.sendUserMessage;
+// caveman/init mutate state or spawn a process.
+const WRAPPED_COMMANDS = new Set(["caveman", "caveman-commit", "caveman-review", "caveman-init"]);
 
-// Commands intentionally NOT wrapped: the slash command flows to the model,
-// which invokes the matching auto-discovered skill (vendor/caveman/skills/<name>)
-// via the `pi.skills` manifest. Same pattern as /caveman-help.
-const SKILL_HANDLED_COMMANDS = new Set(["caveman-commit", "caveman-review", "caveman-help"]);
+// Commands intentionally NOT wrapped (none currently — caveman-help is wrapped
+// via a brief trigger phrase, and commit/review are wrapped via the upstream
+// toml prompt).
+const SKILL_HANDLED_COMMANDS = new Set<string>([]);
 
 const REGISTERED_AGENTS = new Set(["cavecrew-builder", "cavecrew-investigator", "cavecrew-reviewer"]);
 const KNOWN_SKILLS = new Set([
