@@ -1,5 +1,9 @@
 # pi-caveman
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](package.json)
+[![CI](https://github.com/josorio7122/pi-caveman/actions/workflows/check.yml/badge.svg)](https://github.com/josorio7122/pi-caveman/actions/workflows/check.yml)
+
 caveman ultra-compressed output mode for [pi](https://github.com/badlogic/pi-coding-agent).
 
 ## Install
