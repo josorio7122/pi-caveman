@@ -2,18 +2,35 @@
   "name": "pi-caveman",
   "version": "0.1.0",
   "description": "caveman ultra-compressed mode for pi — skills, commands, cavecrew subagents",
-  "keywords": ["pi-package", "caveman", "tokens", "compression"],
+  "keywords": [
+    "pi-package",
+    "caveman",
+    "tokens",
+    "compression"
+  ],
   "license": "MIT",
   "author": "josorio7122",
   "repository": "github:josorio7122/pi-caveman",
   "homepage": "https://github.com/josorio7122/pi-caveman",
   "bugs": "https://github.com/josorio7122/pi-caveman/issues",
   "type": "module",
-  "files": ["src", "vendor", "CHANGELOG.md", "LICENSE", "README.md"],
-  "engines": {"node": ">=20"},
+  "files": [
+    "src",
+    "vendor",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "pi": {
-    "extensions": ["./src/index.ts"],
-    "skills": ["./vendor/caveman/skills"]
+    "extensions": [
+      "./src/index.ts"
+    ],
+    "skills": [
+      "./vendor/caveman/skills"
+    ]
   },
   "scripts": {
     "test": "vitest run",
@@ -26,7 +43,19 @@
     "lint:blanks": "bash scripts/check-blank-lines.sh",
     "parity-check": "tsx scripts/parity-check.ts",
     "sync-upstream": "bash scripts/sync-upstream.sh",
-    "check": "npm run lint && npm run lint:blanks && npm run typecheck && npm run test && npm run parity-check"
+    "check": "npm run lint && npm run lint:blanks && npm run typecheck && npm run test && npm run parity-check",
+    "prepare": "simple-git-hooks 2>/dev/null || true"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged"
+  },
+  "lint-staged": {
+    "src/**/*.ts": [
+      "biome check --fix --no-errors-on-unmatched"
+    ],
+    "scripts/**/*.ts": [
+      "biome check --fix --no-errors-on-unmatched"
+    ]
   },
   "peerDependencies": {
     "@mariozechner/pi-coding-agent": "*",
@@ -34,15 +63,20 @@
     "@sinclair/typebox": "*"
   },
   "dependencies": {
-    "gray-matter": "^4.0.3",
     "@iarna/toml": "^2.2.5",
+    "gray-matter": "^4.0.3",
     "pi-agents": "github:josorio7122/pi-agents"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.13",
-    "@types/node": "^22.0.0",
+    "@biomejs/biome": "^2.4.14",
+    "@mariozechner/pi-coding-agent": "^0.72.0",
+    "@mariozechner/pi-tui": "^0.72.0",
+    "@sinclair/typebox": "*",
+    "@types/node": "^25.6.0",
+    "lint-staged": "^16.4.0",
+    "simple-git-hooks": "^2.13.1",
     "tsx": "^4.21.0",
-    "typescript": "^5.6.0",
-    "vitest": "^2.1.0"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
   }
 }
