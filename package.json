@@ -6,6 +6,8 @@
   "license": "MIT",
   "author": "josorio7122",
   "repository": "github:josorio7122/pi-caveman",
+  "homepage": "https://github.com/josorio7122/pi-caveman",
+  "bugs": "https://github.com/josorio7122/pi-caveman/issues",
   "type": "module",
   "files": ["src", "vendor", "CHANGELOG.md", "LICENSE", "README.md"],
   "engines": {"node": ">=20"},
