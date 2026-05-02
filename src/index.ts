@@ -10,6 +10,7 @@ type ExtensionAPI = {
   on: (event: string, handler: (...args: unknown[]) => unknown) => void;
   registerTool: (tool: unknown) => void;
   registerCommand: (name: string, spec: unknown) => void;
+  sendUserMessage: (text: string) => void | Promise<void>;
 };
 
 export default async function piCavemanExtension(pi: ExtensionAPI): Promise<void> {
