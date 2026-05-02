@@ -1,6 +1,5 @@
 import { handleCaveman } from "./caveman.js";
 import { handleCommit } from "./commit.js";
-import { handleHelp } from "./help.js";
 import { handleInit } from "./init.js";
 import { handleReview } from "./review.js";
 import { handleStats } from "./stats.js";
@@ -34,9 +33,5 @@ export function registerCommands(pi: ExtensionAPI): void {
   pi.registerCommand("caveman-stats", {
     description: "show real token usage and savings for current session",
     handler: handleStats as never,
-  });
-  pi.registerCommand("caveman-help", {
-    description: "quick-reference card for caveman modes and commands",
-    handler: handleHelp as never,
   });
 }
